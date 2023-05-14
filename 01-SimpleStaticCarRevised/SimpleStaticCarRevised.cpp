@@ -3,10 +3,6 @@
 #include "PhysicsObject.hpp"
 #include "Vector.hpp"
 
-// This is a practice for Chapter 1, until page 19.
-// I tried to model a simple car-driver-fuel combination, with mass and moments of inertia,
-// as the book did. Excepted that I extended it to 3D.
-
 RectangularCylinder cin_rectangular_cylinder(const std::string name)
 {
     float mass, xLength, yLength, zLength, x, y, z;

@@ -1,11 +1,8 @@
 #include "PhysicsObject.hpp"
 #include "Vector.hpp"
 
-PointMass::PointMass(const double mass_, const Vector &dP_, const Vector &cP_):
-    mass(mass_), designPosition(dP_), correctedPosition(cP_) {}
-
-Object3D::Object3D(const double mass, const Vector &centerOfGravity, const Vector &momentsOfInertia):
-    mass_(mass), centerOfGravity_(centerOfGravity), momentsOfInertia_(momentsOfInertia) {}
+Object3D::Object3D(const double mass, const Vector &centerOfGravity, const Matrix3x3 &inertiaTensor):
+    mass_(mass), centerOfGravity_(centerOfGravity), inertiaTensor_(inertiaTensor) {}
 
 double Object3D::get_mass() const
 {
@@ -13,30 +10,92 @@ double Object3D::get_mass() const
 }//Object3D::get_mass
 
 Vector Object3D::get_center_of_gravity() const
+{
     return centerOfGravity_;
 }//Object3D::get_center_of_gravity
+
+Vector Object3D::get_corrected_center_of_gravity() const
 {
+    return correctedCenterOfGravity_;
+}//Object3D::get_corrected_center_of_gravity
 
 Vector Object3D::get_moments_of_inertia() const
 {
-    return momentsOfInertia_;
+    return Vector(inertiaTensor_.e11, inertiaTensor_.e22, inertiaTensor_.e33);
 }//Object3D::get_moment_of_inertia
+
+Vector Object3D::get_corrected_moments_of_inertia() const
+{
+    return Vector(correctedInertiaTensor_.e11, correctedInertiaTensor_.e22, correctedInertiaTensor_.e33);
+}//Object3D::get_corrected_moment_of_inertia
+
+Matrix3x3 Object3D::get_inertia_tensor() const
+{
+    return inertiaTensor_;
+}//Object3D::get_inertia_tensor
+
+Matrix3x3 Object3D::get_corrected_inertia_tensor() const
+{
+    return correctedInertiaTensor_;
+}//Object3D::get_corrected_inertia_tensor
+
+void Object3D::update_corrected_center_of_gravity(const Vector &combinedCenterOfGravity)
+{
+    correctedCenterOfGravity_ = centerOfGravity_ - combinedCenterOfGravity;
+    return;
+}//Object3D::update_corrected_center_of_gravity
+
+void Object3D::update_corrected_inertia_tensor(const Vector &combinedCenterOfGravity)
+{
+    double Ixx, Iyy, Izz, Ixy, Ixz, Iyz;
+
+    Ixx = inertiaTensor_.e11 + 
+          mass_ * (correctedCenterOfGravity_.y * correctedCenterOfGravity_.y +
+                   correctedCenterOfGravity_.z * correctedCenterOfGravity_.z);
+        
+    Iyy = inertiaTensor_.e22 + 
+          mass_ * (correctedCenterOfGravity_.x * correctedCenterOfGravity_.x +
+                   correctedCenterOfGravity_.z * correctedCenterOfGravity_.z);
+    
+    Izz = inertiaTensor_.e33 + 
+          mass_ * (correctedCenterOfGravity_.x * correctedCenterOfGravity_.x +
+                  correctedCenterOfGravity_.y * correctedCenterOfGravity_.y);
+
+    Ixy = mass_ * (correctedCenterOfGravity_.x * correctedCenterOfGravity_.y);
+    Ixz = mass_ * (correctedCenterOfGravity_.x * correctedCenterOfGravity_.z);
+    Iyz = mass_ * (correctedCenterOfGravity_.y * correctedCenterOfGravity_.z);
+
+    correctedInertiaTensor_ = Matrix3x3( Ixx, -Ixy, -Ixz,
+                                        -Ixy,  Iyy, -Iyz,
+                                        -Ixz, -Iyz,  Izz);
+
+    return;
+}//Object3D::update_corrected_moments_of_inertia
+
+PointMass::PointMass(const double mass, const Vector &centerOfGravity)
+{
+    mass_ = mass;
+    centerOfGravity_ = correctedCenterOfGravity_ = centerOfGravity;
+    inertiaTensor_ = correctedInertiaTensor_ = Matrix3x3::ZERO;
+    return;
+}//PointMass::PointMass
 
 RectangularCylinder::RectangularCylinder(const double mass, const double xLength, const double yLength, const double zLength, const Vector &centerOfGravity):
     xLength_(xLength), yLength_(yLength), zLength_(zLength)
 {
-    mass_ = mass, centerOfGravity_ = centerOfGravity;
-    update_moment_of_inertia();
+    mass_ = mass;
+    centerOfGravity_ = correctedCenterOfGravity_ = centerOfGravity;
+
+    double momentOfInertiaX = mass_ * (yLength_ * yLength_ + zLength_ * zLength_) / 12.0;
+    double momentOfInertiaY = mass_ * (xLength_ * xLength_ + zLength_ * zLength_) / 12.0;
+    double momentOfInertiaZ = mass_ * (xLength_ * xLength_ + yLength_ * yLength_) / 12.0;
+    
+    inertiaTensor_ = correctedInertiaTensor_ = Matrix3x3(momentOfInertiaX, 0, 0,
+                                                         0, momentOfInertiaY, 0,
+                                                         0, 0, momentOfInertiaZ);
+
     return;
 }//RectangularCylinder::RectangularCylinder
-
-void RectangularCylinder::update_moment_of_inertia()
-{
-    momentsOfInertia_.x = mass_ * (yLength_ * yLength_ + zLength_ * zLength_) / 12.0;
-    momentsOfInertia_.y = mass_ * (xLength_ * xLength_ + zLength_ * zLength_) / 12.0;
-    momentsOfInertia_.z = mass_ * (xLength_ * xLength_ + yLength_ * yLength_) / 12.0;
-    return;
-}//RectangularCylinder::update_moment_of_inertia
 
 std::size_t ObjectGroup3D::get_number_of_components() const
 {
@@ -55,7 +114,7 @@ Vector ObjectGroup3D::get_center_of_gravity() const
 
 Vector ObjectGroup3D::get_moments_of_inertia() const
 {
-    return combinedMomentsOfInertia_;
+    return Vector(combinedInertiaTensor_.e11, combinedInertiaTensor_.e22, combinedInertiaTensor_.e33);
 }//ObjectGroup3D::get_moments_of_inertia
 
 Object3D ObjectGroup3D::get_component(int index) const
@@ -67,7 +126,7 @@ void ObjectGroup3D::add_component(const Object3D &component)
 {
     components_.emplace_back(component);
     update_combined_center_of_gravity();
-    update_combined_moments_of_inertia();
+    update_combined_inertia_tensor();
     return;
 }//ObjectGroup3D::add_component
 
@@ -76,37 +135,34 @@ void ObjectGroup3D::update_combined_center_of_gravity()
     Vector firstMoment;
 
     totalMass_ = 0;
-    for (Object3D component : components_)
+    for (const Object3D &component : components_)
         totalMass_ += component.get_mass();
         
     firstMoment = Vector(0, 0, 0);
-    for (Object3D component : components_)
+    for (const Object3D &component : components_)
         firstMoment += component.get_mass() * component.get_center_of_gravity();
         
     combinedCenterOfGravity_ = firstMoment / totalMass_;
+
+    for (Object3D &component : components_)
+        component.update_corrected_center_of_gravity(combinedCenterOfGravity_);
     
     return;
 }//ObjectGroup3D::update_combined_center_of_gravity
 
-void ObjectGroup3D::update_combined_moments_of_inertia()
+void ObjectGroup3D::update_combined_inertia_tensor()
 {
-    combinedMomentsOfInertia_ = Vector(0, 0, 0);
-    for (Object3D component : components_)
+    combinedInertiaTensor_ = Matrix3x3::ZERO;
+
+    for (Object3D &component : components_)
     {
-        double xDistance = component.get_center_of_gravity().x - combinedCenterOfGravity_.x;
-        double yDistance = component.get_center_of_gravity().y - combinedCenterOfGravity_.y;
-        double zDistance = component.get_center_of_gravity().z - combinedCenterOfGravity_.z;
-
-        double xAxisDistanceSquare = yDistance * yDistance + zDistance * zDistance;
-        double yAxisDistanceSquare = xDistance * xDistance + zDistance * zDistance;
-        double zAxisDistanceSquare = xDistance * xDistance + yDistance * yDistance;
-
-        // The parallel axis theorem
-        combinedMomentsOfInertia_ += component.get_moments_of_inertia() + component.get_mass() * Vector(xAxisDistanceSquare, yAxisDistanceSquare, zAxisDistanceSquare);
+        component.update_corrected_inertia_tensor(combinedCenterOfGravity_);
+        combinedInertiaTensor_ += component.get_corrected_inertia_tensor();
     }//for component
 
     return;
-}//ObjectGroup3D::update_combined_moments_of_inertia}//ObjectGroup3D::update_combined_moments_of_inertia
+}//ObjectGroup3D::update_combined_moments_of_inertia
+
 /*
 Matrix3x3 calculate_inertia_tensor()
 {

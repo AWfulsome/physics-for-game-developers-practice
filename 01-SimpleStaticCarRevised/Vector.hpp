@@ -11,7 +11,7 @@ public:
     double  z = 0;
     
     Vector() {};
-    Vector(const double x, const double y, const double z);
+    Vector(const double x_, const double y_, const double z_);
 
     double  Magnitude() const;
     void    Normalize();
