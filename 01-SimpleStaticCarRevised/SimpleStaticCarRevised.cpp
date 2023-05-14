@@ -48,7 +48,7 @@ int main()
     car.add_component(fuelTank);
 
     std::cout << "Combined mass: " << car.get_total_mass() << " kg\n"
-              << "Combined center of mass: " << car.get_center_of_mass() << '\n'
+              << "Combined center of mass: " << car.get_center_of_gravity() << '\n'
               << "Combined moments of inertia: " << car.get_moments_of_inertia() << std::endl;
 
     return 0;

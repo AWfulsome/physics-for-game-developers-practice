@@ -23,15 +23,15 @@ public:
     std::string name = "";
 
     Object3D() {}
-    Object3D(const double mass, const Vector &centerOfMass = Vector(0, 0, 0), const Vector &momentsOfInertia = Vector(1, 1, 1));
+    Object3D(const double mass, const Vector &centerOfGravity = Vector(0, 0, 0), const Vector &momentsOfInertia = Vector(1, 1, 1));
 
     double  get_mass() const;
-    Vector  get_center_of_mass() const;
+    Vector  get_center_of_gravity() const;
     Vector  get_moments_of_inertia() const;
 
 protected:
     double  mass_;
-    Vector  centerOfMass_ = Vector(0, 0, 0);
+    Vector  centerOfGravity_ = Vector(0, 0, 0);
     Vector  momentsOfInertia_ = Vector(1, 1, 1);
 };
 
@@ -39,7 +39,7 @@ class RectangularCylinder : public Object3D
 {
 public:
     RectangularCylinder() {}
-    RectangularCylinder(const double mass, const double xLength, const double yLength, const double zLength, const Vector &centerOfMass = Vector(0, 0, 0));
+    RectangularCylinder(const double mass, const double xLength, const double yLength, const double zLength, const Vector &centerOfGravity = Vector(0, 0, 0));
 
 private:
     double  xLength_ = 0;
@@ -55,7 +55,7 @@ public:
 
     std::size_t get_number_of_components() const;
     double  get_total_mass() const;
-    Vector  get_center_of_mass() const;
+    Vector  get_center_of_gravity() const;
     Vector  get_moments_of_inertia() const;
 
     Object3D    get_component(int) const;
@@ -64,11 +64,11 @@ public:
 
 private:
     double  totalMass_ = 0;
-    Vector  combinedCenterOfMass_ = Vector(0, 0, 0);
+    Vector  combinedCenterOfGravity_ = Vector(0, 0, 0);
     Vector  combinedMomentsOfInertia_ = Vector(1, 1, 1);
     std::vector<Object3D>   components_;
 
-    void    update_combined_center_of_mass();
+    void    update_combined_center_of_gravity();
     void    update_combined_moments_of_inertia();
 };
 
