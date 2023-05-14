@@ -58,8 +58,8 @@ public:
     Vector  get_center_of_gravity() const;
     Vector  get_moments_of_inertia() const;
 
-    Object3D    get_component(int) const;
-    void    add_component(Object3D);
+    Object3D    get_component(int index) const;
+    void    add_component(const Object3D &component);
     // Object3D    remove_component(int) const;
 
 private:
