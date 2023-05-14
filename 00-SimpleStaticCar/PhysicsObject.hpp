@@ -32,10 +32,6 @@ public:
 protected:
     double  mass_;
     Vector  centerOfMass_ = Vector(0, 0, 0);
-
-    // Actually, the more proper way to represent moments of inertia in 3D is by inertia tensor, a 3 by 3 matrix.
-    // For simplicity, let's just keep it as a 3D vector here.
-    // I'll update it at the next practice, after I read that part.
     Vector  momentsOfInertia_ = Vector(1, 1, 1);
 };
 
