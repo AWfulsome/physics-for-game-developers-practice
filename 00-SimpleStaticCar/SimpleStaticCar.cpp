@@ -6,6 +6,9 @@
 // This is a practice for Chapter 1, until page 19.
 // I tried to model a simple car-driver-fuel combination, with mass and moments of inertia,
 // as the book did. Excepted that I extended it to 3D.
+// The main issue here is maybe the way I implement the moments of inertia in 3D,
+// which I haven't studied yet. For simplicity I'll just leave as it is here,
+// and I'll put the more proper one at the next practice.
 
 RectangularCylinder cin_rectangular_cylinder(const std::string name)
 {
