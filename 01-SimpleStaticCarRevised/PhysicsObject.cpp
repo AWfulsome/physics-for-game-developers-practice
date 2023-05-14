@@ -106,4 +106,50 @@ void ObjectGroup3D::update_combined_moments_of_inertia()
     }//for component
 
     return;
-}//ObjectGroup3D::update_combined_moments_of_inertia
+}//ObjectGroup3D::update_combined_moments_of_inertia}//ObjectGroup3D::update_combined_moments_of_inertia
+/*
+Matrix3x3 calculate_inertia_tensor()
+{
+    constexpr int _NUMELEMENTS = 10;
+
+    double Ixx, Iyy, Izz, Ixy, Ixz, Iyz;
+
+    Ixx = Iyy = Izz = Ixy = Ixz = Iyz = 0;
+
+    PointMass Element[_NUMELEMENTS];
+    for (int i = 0; i < _NUMELEMENTS; ++i)
+    {
+        Ixx += Element[i].LocalInertia.x + 
+               Element[i].mass *
+               (Element[i].correctedPosition.y * Element[i].correctedPosition.y +
+               Element[i].correctedPosition.z * Element[i].correctedPosition.z);
+        
+        Iyy += Element[i].LocalInertia.y + 
+               Element[i].mass *
+               (Element[i].correctedPosition.x * Element[i].correctedPosition.x +
+               Element[i].correctedPosition.z * Element[i].correctedPosition.z);
+        
+        Izz += Element[i].LocalInertia.z + 
+               Element[i].mass *
+               (Element[i].correctedPosition.x * Element[i].correctedPosition.x +
+               Element[i].correctedPosition.y * Element[i].correctedPosition.y);
+
+        Ixy += Element[i].mass *
+               (Element[i].correctedPosition.x * Element[i].correctedPosition.y);
+
+        Ixz += Element[i].mass *
+               (Element[i].correctedPosition.x * Element[i].correctedPosition.z);
+
+        Iyz += Element[i].mass *
+               (Element[i].correctedPosition.y * Element[i].correctedPosition.z);
+    }//for i
+
+    Matrix3x3 InertiaTensor;
+
+    InertiaTensor.e11 =  Ixx, InertiaTensor.e12 = -Ixy, InertiaTensor.e13 = -Ixz;
+    InertiaTensor.e21 = -Ixy, InertiaTensor.e22 =  Iyy, InertiaTensor.e23 = -Iyz;
+    InertiaTensor.e31 = -Ixz, InertiaTensor.e32 = -Iyz, InertiaTensor.e33 =  Izz;
+
+    return InertiaTensor;
+}//calculate_inertia_tensor
+*/
