@@ -3,6 +3,13 @@
 #include "PhysicsObject.hpp"
 #include "Vector.hpp"
 
+// This is the revised version of 00-SimpleStaticCar, mainly focused on PhysicsObject.
+// - PointMass is now derived from Object3D.
+// - Replaced moments of inertia vector with inertia tensor matrix.
+// - Added inertia tensor related methods.
+// - Added corrected center of gravity and corrected inertia tensor.
+//   Both are relative to the combined ones.
+
 RectangularCylinder cin_rectangular_cylinder(const std::string name)
 {
     float mass, xLength, yLength, zLength, x, y, z;
